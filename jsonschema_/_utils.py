@@ -136,7 +136,7 @@ def types_msg(instance, types):
             reprs.append(repr(type["name"]))
         except Exception:
             reprs.append(repr(type))
-    return "tag-msg_dataCheck_value_dataType.tagPara :%r, is not of type %s" % (instance, ", ".join(reprs))
+    return "tag-msg_requestParmValueCheck_dataType.tagPara :%r, is not of type %s" % (instance, ", ".join(reprs))
 
 
 def flatten(suitable_for_isinstance):
