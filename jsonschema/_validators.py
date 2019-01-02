@@ -47,14 +47,14 @@ def additionalProperties(validator, aP, instance, schema):
                 verb = "does"
             else:
                 verb = "do"
-            error = "tag-msg_requestParmValueCheck_regex. tagPara :%s %s, not match any of the regexes: %s" % (
+            error = "tag-msg_dataCheck_value_regex. tagPara :%s, %s not match any of the regexes: %s" % (
                 ", ".join(map(repr, sorted(extras))),
                 verb,
                 ", ".join(map(repr, patterns)),
             )
             yield ValidationError(error)
         else:
-            error = "tag-msg_dataCheck_group_invalid. Additional properties are not allowed (tagPara :%s %s, unexpected)"
+            error = "tag-msg_dataCheck_group_invalid. Additional properties are not allowed (tagPara :%s, %s unexpected)"
             yield ValidationError(error % _utils.extras_msg(extras))
 
 def additionalPropertiesKey(validator, aP, instance, schema):
@@ -74,14 +74,14 @@ def additionalPropertiesKey(validator, aP, instance, schema):
                 verb = "does"
             else:
                 verb = "do"
-            error = "tag-msg_requestParmValueCheck_regex. tagPara :%s %s, not match any of the regexes: %s" % (
+            error = "tag-msg_dataCheck_value_regex. tagPara :%s, %s not match any of the regexes: %s" % (
                 ", ".join(map(repr, sorted(extras))),
                 verb,
                 ", ".join(map(repr, patterns)),
             )
             yield ValidationError(error)
         else:
-            error = "tag-msg_dataCheck_key_invalid. Additional properties are not allowed (tagPara :%s %s, unexpected)"
+            error = "tag-msg_dataCheck_key_invalid. Additional properties are not allowed (tagPara :%s,%s unexpected)"
             yield ValidationError(error % _utils.extras_msg(extras))
 
 
@@ -190,8 +190,8 @@ def maximum_draft3_draft4(validator, maximum, instance, schema):
             "tag-msg_dataCheck_value_countMax.tagPara :%r, is %s the maximum of %r" % (instance, cmp, maximum)
         )
 
-
-def exclusiveMinimum_draft6(validator, minimum, instance, schema):
+        
+def exclusiveMinimum(validator, minimum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
@@ -203,7 +203,7 @@ def exclusiveMinimum_draft6(validator, minimum, instance, schema):
         )
 
 
-def exclusiveMaximum_draft6(validator, maximum, instance, schema):
+def exclusiveMaximum(validator, maximum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
@@ -256,7 +256,7 @@ def minItems(validator, mI, instance, schema):
 
 def maxItems(validator, mI, instance, schema):
     if validator.is_type(instance, "array") and len(instance) > mI:
-        yield ValidationError("tag-msg_dataCheck_value_countMax.tagPara :%r, is too long" % (instance,))
+        yield ValidationError("tag-msg_dataCheck_value_countMax.tagPara :%r, is too long" % (instance))
 
 
 def uniqueItems(validator, uI, instance, schema):
@@ -265,7 +265,7 @@ def uniqueItems(validator, uI, instance, schema):
         validator.is_type(instance, "array") and
         not _utils.uniq(instance)
     ):
-        yield ValidationError("tag-msg_dataCheck_key_dup.tagPara :%r, has non-unique elements" % (instance,))
+        yield ValidationError("tag-msg_dataCheck_key_dup.tagPara :%r, has non-unique elements" % (instance))
 
 
 def pattern(validator, patrn, instance, schema):
@@ -273,7 +273,7 @@ def pattern(validator, patrn, instance, schema):
         validator.is_type(instance, "string") and
         not re.search(patrn, instance)
     ):
-        yield ValidationError("tag-msg_requestParmValueCheck_regex.tagPara :%r, does not match %r" % (instance, patrn))
+        yield ValidationError("tag-msg_dataCheck_value_regex.tagPara :%r, does not match %r" % (instance, patrn))
 
 
 def format(validator, format, instance, schema):
@@ -282,21 +282,24 @@ def format(validator, format, instance, schema):
             validator.format_checker.check(instance, format)
         except FormatError as error:
             #yield ValidationError(error.message, cause=error.cause)
-            yield ValidationError("tag-msg_dataCheck_value_scheme.tagPara :%r," % (instance,))
+            yield ValidationError("tag-msg_dataCheck_value_scheme.tagPara :%r," % (instance))
 
 def nullKey(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) < mL:
-        yield ValidationError("tag-msg_dataCheck_key_reqNull.tagPara :%r," % (instance,))
+        print('Validator: ',repr(validator))
+        print('instance: ',instance)
+        print('mL: ',mL)
+        yield ValidationError("tag-msg_dataCheck_key_reqNull.tagPara :%r," % (instance))
 
 
 def minLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) < mL:
-        yield ValidationError("tag-msg_dataCheck_value_lenMin.tagPara :%r, is too short" % (instance,))
+        yield ValidationError("tag-msg_dataCheck_value_lenMin.tagPara :%r, is too short" % (instance))
 
 
 def maxLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) > mL:
-        yield ValidationError("tag-msg_dataCheck_value_lenMax.tagPara :%r, is too long" % (instance,))
+        yield ValidationError("tag-msg_dataCheck_value_lenMax.tagPara :%r, is too long" % (instance))
 
 
 def dependencies(validator, dependencies, instance, schema):
@@ -471,10 +474,6 @@ def allOf_draft4(validator, allOf, instance, schema):
 
 def allOf(validator, allOf, instance, schema):
     for index, subschema in enumerate(allOf):
-        if subschema is True:  # FIXME: Messages
-            subschema = {}
-        elif subschema is False:
-            subschema = {"not": {}}
         for error in validator.descend(instance, subschema, schema_path=index):
             yield error
 
@@ -520,10 +519,6 @@ def anyOf_draft4(validator, anyOf, instance, schema):
 def anyOf(validator, anyOf, instance, schema):
     all_errors = []
     for index, subschema in enumerate(anyOf):
-        if subschema is True:  # FIXME: Messages
-            subschema = {}
-        elif subschema is False:
-            subschema = {"not": {}}
         errs = list(validator.descend(instance, subschema, schema_path=index))
         if not errs:
             break
@@ -539,10 +534,6 @@ def oneOf(validator, oneOf, instance, schema):
     subschemas = enumerate(oneOf)
     all_errors = []
     for index, subschema in subschemas:
-        if subschema is True:  # FIXME: Messages
-            subschema = {}
-        elif subschema is False:
-            subschema = {"not": {}}
         errs = list(validator.descend(instance, subschema, schema_path=index))
         if not errs:
             first_valid = subschema
@@ -568,3 +559,15 @@ def not_(validator, not_schema, instance, schema):
         yield ValidationError(
             "tag-msg_dataCheck_value_listBlock.%r is not allowed for tagPara :%r," % (not_schema, instance)
         )
+        
+def if_(validator, if_schema, instance, schema):
+    # FIXME: paths
+    if validator.is_valid(instance, if_schema):
+        if u"then" in schema:
+            then = schema[u"then"]
+            for error in validator.descend(instance, then):
+                yield error
+    elif u"else" in schema:
+        else_ = schema[u"else"]
+        for error in validator.descend(instance, else_):
+            yield error
