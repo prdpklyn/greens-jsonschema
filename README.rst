@@ -124,15 +124,7 @@ Please join, and feel free to send questions there.
 Contributing
 ------------
 
-I'm Julian Berman.
+Original by Julian Berman.
 
 ``jsonschema`` is on `GitHub <http://github.com/Julian/jsonschema>`_.
 
-Get in touch, via GitHub or otherwise, if you've got something to contribute,
-it'd be most welcome!
-
-You can also generally find me on Freenode (nick: ``tos9``) in various
-channels, including ``#python``.
-
-If you feel overwhelmingly grateful, you can woo me with beer money via
-Google Pay with the email in my GitHub profile.
